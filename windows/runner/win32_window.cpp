@@ -207,23 +207,10 @@ Win32Window::MessageHandler(HWND hwnd,
       return 0;
     }
 
-    case WM_ACTIVATE: {
-      // When embedding native child HWNDs (e.g. WebView2), aggressively forcing
-      // focus back to the Flutter view can cause a focus "fight" where the
-      // platform view receives focus briefly and then immediately loses it.
-      //
-      // Only forward focus to the Flutter view when the window is activating
-      // and focus is NOT already within this window's child hierarchy.
-      // This keeps normal keyboard behavior after Alt-Tab, while allowing
-      // platform views to take focus on click.
-      if (LOWORD(wparam) != WA_INACTIVE && child_content_ != nullptr) {
-        const HWND focused = GetFocus();
-        if (focused == nullptr || !IsChild(hwnd, focused)) {
-          SetFocus(child_content_);
-        }
-      }
-      return 0;
-    }
+    // Note: We intentionally do NOT force focus to the Flutter child view on
+    // activation. With embedded native HWNDs (e.g. WebView2), forcing focus to
+    // the Flutter view can steal focus from the platform view immediately after
+    // a click, making HTML inputs un-focusable on some Flutter versions.
 
     case WM_DWMCOLORIZATIONCOLORCHANGED:
       UpdateTheme(hwnd);
@@ -257,8 +244,6 @@ void Win32Window::SetChildContent(HWND content) {
 
   MoveWindow(content, frame.left, frame.top, frame.right - frame.left,
              frame.bottom - frame.top, true);
-
-  SetFocus(child_content_);
 }
 
 RECT Win32Window::GetClientArea() {

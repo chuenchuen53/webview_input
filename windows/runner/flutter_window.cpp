@@ -51,6 +51,21 @@ LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               WPARAM const wparam,
                               LPARAM const lparam) noexcept {
+  // Workaround for Windows platform views (e.g. WebView2): let native HWNDs own
+  // focus. Some Flutter versions can aggressively re-assert focus to the Flutter
+  // view during activation/focus transitions, which immediately blurs HTML
+  // inputs inside WebViews.
+  //
+  // By handling these messages here, we prevent Flutter's window proc handler
+  // from overriding native focus decisions.
+  switch (message) {
+    case WM_ACTIVATE:
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+    case WM_MOUSEACTIVATE:
+      return Win32Window::MessageHandler(hwnd, message, wparam, lparam);
+  }
+
   // Give Flutter, including plugins, an opportunity to handle window messages.
   if (flutter_controller_) {
     std::optional<LRESULT> result =
