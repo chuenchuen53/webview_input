@@ -207,11 +207,23 @@ Win32Window::MessageHandler(HWND hwnd,
       return 0;
     }
 
-    case WM_ACTIVATE:
-      if (child_content_ != nullptr) {
-        SetFocus(child_content_);
+    case WM_ACTIVATE: {
+      // When embedding native child HWNDs (e.g. WebView2), aggressively forcing
+      // focus back to the Flutter view can cause a focus "fight" where the
+      // platform view receives focus briefly and then immediately loses it.
+      //
+      // Only forward focus to the Flutter view when the window is activating
+      // and focus is NOT already within this window's child hierarchy.
+      // This keeps normal keyboard behavior after Alt-Tab, while allowing
+      // platform views to take focus on click.
+      if (LOWORD(wparam) != WA_INACTIVE && child_content_ != nullptr) {
+        const HWND focused = GetFocus();
+        if (focused == nullptr || !IsChild(hwnd, focused)) {
+          SetFocus(child_content_);
+        }
       }
       return 0;
+    }
 
     case WM_DWMCOLORIZATIONCOLORCHANGED:
       UpdateTheme(hwnd);
