@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:webview_input/core_web_view.dart';
 
 void main() {
@@ -60,14 +61,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 child: Text("Toggle WebView")),
             SizedBox(
-              height: 200,
+              height: 500,
               width: 500,
               child: showWebView
-                  ? Row(
+                  ? Column(
                       spacing: 16.0,
                       children: [
-                        SimpleInputWebView(),
-                        SimpleInputWebView(),
+                        Row(
+                          spacing: 16.0,
+                          children: [
+                            SimpleInputWebView(),
+                            SimpleInputWebView(),
+                          ],
+                        ),
+                        Row(
+                          spacing: 16.0,
+                          children: [
+                            SimpleInputViewNoWrapper(),
+                            SimpleInputViewNoWrapper(),
+                          ],
+                        ),
                       ],
                     )
                   : SizedBox.shrink(),
@@ -79,6 +92,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+const html = """
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Document</title>
+  </head>
+  <body>
+<textarea></textarea>
+  </body>
+</html>
+""";
+
 class SimpleInputWebView extends StatelessWidget {
   const SimpleInputWebView({super.key});
 
@@ -88,19 +115,29 @@ class SimpleInputWebView extends StatelessWidget {
       width: 200,
       height: 150,
       child: CoreWebView(
-        initialHtml: """
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-      </head>
-      <body>
-    <textarea></textarea>
-      </body>
-    </html>
-      """,
+        initialHtml: html,
+      ),
+    );
+  }
+}
+
+class SimpleInputViewNoWrapper extends StatelessWidget {
+  const SimpleInputViewNoWrapper({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 200,
+      height: 150,
+      child: InAppWebView(
+        initialSettings: InAppWebViewSettings(
+          supportZoom: false,
+        ),
+        onWebViewCreated: (controller) {
+          controller.loadData(data: html);
+        },
       ),
     );
   }
