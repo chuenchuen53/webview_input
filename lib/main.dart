@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:webview_input/core_web_view.dart';
+import 'package:webview_input/core_web_view_2.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,49 +44,57 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          spacing: 8.0,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(flutterVersion),
-            TextFormField(),
-            TextFormField(),
-            FilledButton(
-                onPressed: () {
-                  setState(() {
-                    showWebView = !showWebView;
-                  });
-                },
-                child: Text("Toggle WebView")),
-            SizedBox(
-              height: 500,
-              width: 500,
-              child: showWebView
-                  ? Column(
-                      spacing: 16.0,
-                      children: [
-                        Row(
-                          spacing: 16.0,
-                          children: [
-                            SimpleInputWebView(),
-                            SimpleInputWebView(),
-                          ],
-                        ),
-                        Row(
-                          spacing: 16.0,
-                          children: [
-                            SimpleInputViewNoWrapper(),
-                            SimpleInputViewNoWrapper(),
-                          ],
-                        ),
-                      ],
-                    )
-                  : SizedBox.shrink(),
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            spacing: 8.0,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(flutterVersion),
+              TextFormField(),
+              TextFormField(),
+              FilledButton(
+                  onPressed: () {
+                    setState(() {
+                      showWebView = !showWebView;
+                    });
+                  },
+                  child: Text("Toggle WebView")),
+              SizedBox(
+                width: 500,
+                child: showWebView
+                    ? Column(
+                        spacing: 16.0,
+                        children: [
+                          Row(
+                            spacing: 16.0,
+                            children: [
+                              SimpleInputWebView(),
+                              SimpleInputWebView(),
+                            ],
+                          ),
+                          Row(
+                            spacing: 16.0,
+                            children: [
+                              SimpleInputViewNoWrapper(),
+                              SimpleInputViewNoWrapper(),
+                            ],
+                          ),
+                          Row(
+                            spacing: 16.0,
+                            children: [
+                              SimpleInputVIewWindowsOnly(),
+                              SimpleInputVIewWindowsOnly(),
+                            ],
+                          ),
+                        ],
+                      )
+                    : SizedBox.shrink(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -138,6 +147,21 @@ class SimpleInputViewNoWrapper extends StatelessWidget {
         onWebViewCreated: (controller) {
           controller.loadData(data: html);
         },
+      ),
+    );
+  }
+}
+
+class SimpleInputVIewWindowsOnly extends StatelessWidget {
+  const SimpleInputVIewWindowsOnly({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 200,
+      height: 150,
+      child: CoreWebView2(
+        initialHtml: html,
       ),
     );
   }
